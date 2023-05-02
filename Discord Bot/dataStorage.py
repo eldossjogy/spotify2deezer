@@ -50,11 +50,15 @@ def createTable():
   con.commit()
 
 # Stores Token and UserID into Database
-# def storeInfo(userID,deezerToken):
-def storeInfo(userid,token):
-  encryptToken = encrypt(token)
-  cur.execute("INSERT INTO userInfo(userid, token, sync) values(%s,%s,%s)",[str(userid), str(encryptToken),[]])
-  con.commit()
+def storeInfo(userid, token):
+    encryptToken = encrypt(token)
+    cur.execute("SELECT COUNT(*) FROM userInfo WHERE userid = %s", [str(userid)])                           # Check if a row with the userid exists
+    count = cur.fetchone()[0]
+    if count > 0:
+        cur.execute("UPDATE userInfo SET token = %s WHERE userid = %s", [str(encryptToken), str(userid)])   # Update the token for the existing row
+    else:
+        cur.execute("INSERT INTO userInfo (userid, token, sync) VALUES (%s, %s, %s)", [str(userid), str(encryptToken), []])    # Insert a new row with userid and token
+    con.commit()
 
 # Checks for valid token
 # def ErrorInfo(userID):
